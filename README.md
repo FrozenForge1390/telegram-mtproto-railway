@@ -8,12 +8,14 @@ A minimal, reusable Railway deployment for Telegram's official MTProto proxy Doc
 - Runs the proxy on **TCP port 443 inside the container**.
 - Works with Railway's public **TCP Proxy** networking.
 
-## Deploy on Railway — no variables required
+## Deploy on Railway — variables included
 
 1. In Railway, create a new service from this GitHub repository.
-2. Do **not** add any variables. The repository already contains:
-   - a built-in, project-level 32-character `SECRET`
-   - automatic `WORKERS=2`
+2. The repository includes a root `.env` file, so Railway detects and pre-fills these service variables during GitHub deployment:
+   - `SECRET=916d568abce960c5b03d8b77e103388b`
+   - `WORKERS=2`
+
+   If Railway displays its **Suggested Variables** confirmation, accept it once. After deployment, both keys appear in the service's **Variables** tab.
 
    Built-in project secret:
 
