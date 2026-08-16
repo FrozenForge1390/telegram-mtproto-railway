@@ -1,0 +1,14 @@
+services:
+  mtproto-proxy:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "443:443/tcp"
+    environment:
+      SECRET: "${SECRET}"
+      WORKERS: "${WORKERS:-2}"
+    volumes:
+      - mtproto-data:/data
+
+volumes:
+  mtproto-data:
