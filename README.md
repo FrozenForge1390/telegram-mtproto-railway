@@ -19,7 +19,19 @@ A minimal, reusable Railway deployment for Telegram's official MTProto proxy Doc
    | `WORKERS` | No | `2` |
    | `TAG` | No | Tag issued by Telegram's `@MTProxybot` |
 
-   `SECRET` must be exactly 32 lowercase hexadecimal characters. Never commit your production secret to GitHub.
+   `SECRET` must be exactly 32 lowercase hexadecimal characters. Generate the value first; do **not** paste sample or explanatory text into Railway. Never commit your production secret to GitHub.
+
+   Valid example shape (generate your own value):
+
+   ```text
+   c096301b5edd234d89c602ce4a83cd4e
+   ```
+
+   Invalid example:
+
+   ```text
+   replace_with_exactly_32_lowercase_hex_characters
+   ```
 
 3. Open the service's **Settings → Networking → TCP Proxy**.
 4. Create a TCP Proxy for application port **443**.
