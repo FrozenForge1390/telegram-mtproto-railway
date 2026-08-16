@@ -1,86 +1,73 @@
 # Telegram MTProto Proxy on Railway
 
-A minimal, reusable Railway deployment for Telegram's official MTProto proxy Docker image.
+A minimal Railway deployment using Telegram's official `telegrammessenger/proxy` image.
 
-- No personal domain is hard-coded.
-- Includes a ready-to-use built-in project secret, so Railway variables are optional.
-- Uses the official `telegrammessenger/proxy:latest` image.
-- Runs the proxy on **TCP port 443 inside the container**.
-- Works with Railway's public **TCP Proxy** networking.
+- No personal domain is included.
+- No production secret is committed to GitHub.
+- The container listens on internal TCP port `443`.
 
-## Deploy on Railway — variables included
+## Deploy
 
-1. In Railway, create a new service from this GitHub repository.
-2. The repository includes a root `.env` file, so Railway detects and pre-fills these service variables during GitHub deployment:
-   - `SECRET=916d568abce960c5b03d8b77e103388b`
-   - `WORKERS=2`
+1. Create a Railway service from this GitHub repository.
+2. Open the service's **Variables** tab and add:
 
-   If Railway displays its **Suggested Variables** confirmation, accept it once. After deployment, both keys appear in the service's **Variables** tab.
-
-   Built-in project secret:
-
-   ```text
-   916d568abce960c5b03d8b77e103388b
+   ```env
+   SECRET=YOUR_32_CHARACTER_LOWERCASE_HEX_SECRET
+   WORKERS=2
    ```
 
-   Because this repository is public, this default secret is public and shared by every deployment unless overridden.
-3. Open the service's **Settings → Networking → TCP Proxy**.
-4. Create a TCP Proxy for application port **443**.
-5. Redeploy the service once after creating the TCP Proxy.
-6. Open **Deploy Logs**. The ready-to-click `https://t.me/proxy?...` and `tg://proxy?...` links are printed under `[auto-config]`.
+   Generate a secret locally with:
 
-That is all. No domain, secret, or worker variable is required.
+   ```bash
+   openssl rand -hex 16
+   ```
 
-### Optional overrides
+   `SECRET` must contain exactly 32 lowercase hexadecimal characters, with no quotes or spaces.
 
-You may still set these variables manually:
+3. Apply/deploy the staged variable changes.
+4. Open **Settings → Networking → TCP Proxy**.
+5. Create a TCP Proxy for application port:
 
-| Variable | Required | Description |
+   ```text
+   443
+   ```
+
+6. Railway returns a public endpoint such as:
+
+   ```text
+   example.proxy.rlwy.net:12345
+   ```
+
+7. Create the Telegram link:
+
+   ```text
+   https://t.me/proxy?server=example.proxy.rlwy.net&port=12345&secret=YOUR_SECRET
+   ```
+
+## Variables
+
+| Name | Required | Value |
 |---|---:|---|
-| `SECRET` | No | Exactly 32 lowercase hexadecimal characters; generate with `openssl rand -hex 16` |
-| `WORKERS` | No | Worker count; default `2` |
-| `TAG` | No | Tag issued by Telegram's `@MTProxybot` |
+| `SECRET` | Yes | Exactly 32 lowercase hexadecimal characters |
+| `WORKERS` | No | `2` recommended for Railway |
+| `TAG` | No | Only if issued by Telegram's `@MTProxybot` |
 
-If `SECRET` is absent or invalid, the wrapper uses the built-in project secret shown above.
+Do not add `PORT`; Railway's TCP Proxy should target internal application port `443`.
 
-## Ports: must MTProto use 443?
+## Custom ports
 
-No. MTProto Proxy can be exposed on any reachable **TCP** port.
+MTProto does not require public port 443. The official container listens on internal TCP 443, while Railway assigns a public TCP port. On a VPS, any external TCP port can be mapped to container port 443.
 
-The official container listens on internal TCP port `443`. On a normal VPS or Docker host, map any external port to it:
-
-```bash
-docker run -d \
-  --name mtproto-proxy \
-  --restart unless-stopped \
-  -p 8443:443/tcp \
-  -e SECRET="$(openssl rand -hex 16)" \
-  -e WORKERS=2 \
-  telegrammessenger/proxy:latest
-```
-
-Clients would then use port `8443`.
-
-### Railway limitation
-
-Railway assigns the external public port for its TCP Proxy. You choose the internal application port (`443` here), but normally you **cannot choose Railway's public port**. To expose several public ports, you generally need separate Railway services/TCP proxies. On a VPS, Docker, HAProxy, or firewall redirects can expose many external TCP ports to the same internal proxy.
-
-Port `443` is common because restrictive networks are less likely to block it, but it is not mandatory.
-
-## Local Docker Compose
+## Local Docker
 
 ```bash
+cp .env.example .env
+# Fill SECRET in .env
 docker compose up -d --build
 docker compose logs -f
 ```
 
-No `.env` file is required. Create one only if you want to override the built-in secret or worker count.
-
-The local proxy is available on TCP port `443`. Change the left side of `443:443/tcp` in `docker-compose.yml` to expose another host port.
-
 ## Security
 
-- Revoke any GitHub or Railway access token accidentally pasted into chats or logs.
-- Rotate a proxy secret if it was exposed unintentionally.
-- Do not commit `.env`.
-- Use `TAG` only if you intentionally register the proxy with Telegram's `@MTProxybot`.
+- Never commit `.env` or a production secret.
+- Rotate exposed GitHub, Railway, or proxy credentials.
