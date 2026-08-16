@@ -3,7 +3,7 @@
 A minimal, reusable Railway deployment for Telegram's official MTProto proxy Docker image.
 
 - No personal domain is hard-coded.
-- No proxy secret is committed to GitHub.
+- Includes a ready-to-use built-in project secret, so Railway variables are optional.
 - Uses the official `telegrammessenger/proxy:latest` image.
 - Runs the proxy on **TCP port 443 inside the container**.
 - Works with Railway's public **TCP Proxy** networking.
@@ -68,11 +68,11 @@ Port `443` is common because restrictive networks are less likely to block it, b
 ## Local Docker Compose
 
 ```bash
-cp .env.example .env
-# Edit .env and set SECRET to the output of: openssl rand -hex 16
 docker compose up -d --build
 docker compose logs -f
 ```
+
+No `.env` file is required. Create one only if you want to override the built-in secret or worker count.
 
 The local proxy is available on TCP port `443`. Change the left side of `443:443/tcp` in `docker-compose.yml` to expose another host port.
 
