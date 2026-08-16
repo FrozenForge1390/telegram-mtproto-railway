@@ -11,9 +11,17 @@ A minimal, reusable Railway deployment for Telegram's official MTProto proxy Doc
 ## Deploy on Railway — no variables required
 
 1. In Railway, create a new service from this GitHub repository.
-2. Do **not** add any variables. The startup wrapper automatically creates:
-   - a stable, per-service 32-character `SECRET`
-   - `WORKERS=2`
+2. Do **not** add any variables. The repository already contains:
+   - a built-in, project-level 32-character `SECRET`
+   - automatic `WORKERS=2`
+
+   Built-in project secret:
+
+   ```text
+   916d568abce960c5b03d8b77e103388b
+   ```
+
+   Because this repository is public, this default secret is public and shared by every deployment unless overridden.
 3. Open the service's **Settings → Networking → TCP Proxy**.
 4. Create a TCP Proxy for application port **443**.
 5. Redeploy the service once after creating the TCP Proxy.
@@ -31,7 +39,7 @@ You may still set these variables manually:
 | `WORKERS` | No | Worker count; default `2` |
 | `TAG` | No | Tag issued by Telegram's `@MTProxybot` |
 
-If `SECRET` is absent or invalid, the wrapper safely replaces it with the stable automatic value.
+If `SECRET` is absent or invalid, the wrapper uses the built-in project secret shown above.
 
 ## Ports: must MTProto use 443?
 
