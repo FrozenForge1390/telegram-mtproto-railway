@@ -8,50 +8,30 @@ A minimal, reusable Railway deployment for Telegram's official MTProto proxy Doc
 - Runs the proxy on **TCP port 443 inside the container**.
 - Works with Railway's public **TCP Proxy** networking.
 
-## Deploy on Railway
+## Deploy on Railway — no variables required
 
 1. In Railway, create a new service from this GitHub repository.
-2. Add these service variables:
-
-   | Variable | Required | Example |
-   |---|---:|---|
-   | `SECRET` | Yes | Generate with `openssl rand -hex 16` |
-   | `WORKERS` | No | `2` |
-   | `TAG` | No | Tag issued by Telegram's `@MTProxybot` |
-
-   `SECRET` must be exactly 32 lowercase hexadecimal characters. Generate the value first; do **not** paste sample or explanatory text into Railway. Never commit your production secret to GitHub.
-
-   Valid example shape (generate your own value):
-
-   ```text
-   c096301b5edd234d89c602ce4a83cd4e
-   ```
-
-   Invalid example:
-
-   ```text
-   replace_with_exactly_32_lowercase_hex_characters
-   ```
-
+2. Do **not** add any variables. The startup wrapper automatically creates:
+   - a stable, per-service 32-character `SECRET`
+   - `WORKERS=2`
 3. Open the service's **Settings → Networking → TCP Proxy**.
 4. Create a TCP Proxy for application port **443**.
-5. Railway returns an endpoint similar to:
+5. Redeploy the service once after creating the TCP Proxy.
+6. Open **Deploy Logs**. The ready-to-click `https://t.me/proxy?...` and `tg://proxy?...` links are printed under `[auto-config]`.
 
-   ```text
-   example.proxy.rlwy.net:12345
-   ```
+That is all. No domain, secret, or worker variable is required.
 
-6. Build the Telegram link using Railway's hostname, assigned public port, and your secret:
+### Optional overrides
 
-   ```text
-   https://t.me/proxy?server=example.proxy.rlwy.net&port=12345&secret=YOUR_SECRET
-   ```
+You may still set these variables manually:
 
-   Or:
+| Variable | Required | Description |
+|---|---:|---|
+| `SECRET` | No | Exactly 32 lowercase hexadecimal characters; generate with `openssl rand -hex 16` |
+| `WORKERS` | No | Worker count; default `2` |
+| `TAG` | No | Tag issued by Telegram's `@MTProxybot` |
 
-   ```text
-   tg://proxy?server=example.proxy.rlwy.net&port=12345&secret=YOUR_SECRET
-   ```
+If `SECRET` is absent or invalid, the wrapper safely replaces it with the stable automatic value.
 
 ## Ports: must MTProto use 443?
 
